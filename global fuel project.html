@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Global Fuel Prices &amp; Taxation Dashboard</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--text:#1f2328;--muted:#5b6470;--accent:#d9480f;--line:#e6e3dc;--hero:#1f2328;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161a;--card:#1d2026;--text:#e8e8e4;--muted:#9aa3af;--accent:#ff8a4c;--line:#2d323a;--hero:#0d0f12}}
+:root[data-theme="dark"]{--bg:#14161a;--card:#1d2026;--text:#e8e8e4;--muted:#9aa3af;--accent:#ff8a4c;--line:#2d323a;--hero:#0d0f12}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+.hero{background:var(--hero);color:#fff;padding:44px 0 56px}
+.hero h1{font-size:clamp(1.7rem,5vw,2.6rem);margin:0 0 10px;line-height:1.15}
+.hero p{max-width:620px;margin:0 0 18px;opacity:.85}
+.btn{display:inline-block;padding:9px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.92rem;background:var(--accent);color:#fff;margin:0 8px 8px 0}
+.btn.alt{background:transparent;border:1px solid rgba(255,255,255,.4)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:-32px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.stat b{display:block;font-size:1.5rem;color:var(--accent)}.stat span{font-size:.82rem;color:var(--muted)}
+nav{display:flex;gap:6px;overflow-x:auto;margin:22px 0 6px;padding-bottom:4px}
+nav button,.chip,.seg button{font:inherit;font-size:.9rem;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;white-space:nowrap}
+nav button.on,.chip.on,.seg button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.panel{display:none}.panel.on{display:block}
+h2{font-size:1.35rem;margin:18px 0 4px}.sub{color:var(--muted);margin:0 0 14px;font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h3{margin:0 0 4px;font-size:1.05rem}.card .q{color:var(--muted);font-size:.88rem;margin:0 0 10px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;font-size:.9rem}
+select,input[type=search]{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.ch{position:relative;height:300px}.ch.tall{height:380px}
+.ins{border-left:3px solid var(--accent);padding:6px 12px;color:var(--muted);font-size:.92rem;margin-top:10px;background:var(--bg);border-radius:0 8px 8px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.scroll{overflow:auto;max-height:340px}table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:7px 9px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);cursor:pointer;position:sticky;top:0;background:var(--card)}
+td.h{text-align:center;color:#111;font-weight:600}
+footer{margin:36px 0 20px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem;text-align:center}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+<h1>Global Fuel Prices &amp; Taxation, 2020–2026</h1>
+<p>An interactive dashboard of petrol, diesel and LPG prices, taxes and subsidies across 84 countries. Pick a scenario below and play with the filters.</p>
+<a class="btn" id="l-tab" href="#">Tableau Dashboard</a><a class="btn alt" id="l-vid" href="#">Watch Video</a><a class="btn alt" id="l-git" href="#">GitHub Repo</a>
+</div></header>
+<main class="wrap">
+<div class="stats"><div class="stat"><b>27,468</b><span>weekly records</span></div><div class="stat"><b>84</b><span>countries</span></div><div class="stat"><b>7</b><span>regions</span></div><div class="stat"><b>9</b><span>charts</span></div></div>
+<nav id="tabs"><button class="on" data-t="p1">Scenario 1: Policy</button><button data-t="p2">Scenario 2: Logistics</button><button data-t="p3">Scenario 3: Research</button><button data-t="p4">Country Explorer</button></nav>
+
+<section class="panel on" id="p1">
+<h2>Dr. Sarah Mitchell · Energy Policy Consultant</h2><p class="sub">Where is fuel taxed most, and do subsidies lower prices?</p>
+<div class="card"><h3>Fuel tax by country</h3><p class="q">Average tax percentage, 2020–2026</p>
+<div class="ctl"><label>Region <select id="s1r"></select></label><label>Show top <input type="range" id="s1n" min="5" max="30" value="12"> <b id="s1v">12</b></label></div>
+<div class="ch tall"><canvas id="c1"></canvas></div></div>
+<div class="card"><h3>Do subsidies lower fuel prices?</h3><p class="q">Compare subsidy levels</p>
+<div class="ctl seg"><button class="on" data-m="price">Avg fuel price (USD/L)</button><button data-m="tax">Avg tax (%)</button></div>
+<div class="ch"><canvas id="c2"></canvas></div>
+<div class="ins">Countries with Low subsidies average about $3.09 per litre, against about $0.13 at the Very High level. Low-subsidy countries also tax fuel at about 37.5%, compared with about 15% elsewhere.</div></div>
+</section>
+
+<section class="panel" id="p2">
+<h2>Marcus Thompson · Supply Chain Manager</h2><p class="sub">Where is diesel cheap, how is it trending, and how risky is each market?</p>
+<div class="card"><h3>Diesel price trend by region</h3><p class="q">Quarterly average, USD per litre. Tap a region to show or hide it.</p>
+<div class="ctl" id="chips"></div><div class="ch tall"><canvas id="c3"></canvas></div></div>
+<div class="card"><h3>Cheapest and costliest diesel markets</h3>
+<div class="ctl seg" id="tb"><button class="on" data-d="top">Costliest 10</button><button data-d="bot">Cheapest 10</button></div>
+<div class="ch"><canvas id="c4"></canvas></div></div>
+<div class="card"><h3>Diesel price volatility</h3><p class="q">Variation within a region each year (higher means riskier). Darker orange means more volatile.</p>
+<div class="scroll"><table id="vol"></table></div></div>
+</section>
+
+<section class="panel" id="p3">
+<h2>Prof. Elena Rodriguez · Energy Economics Researcher</h2><p class="sub">How do income levels relate to tax, subsidies and prices?</p>
+<div class="grid">
+<div class="card"><h3>Tax by income level</h3><div class="ch"><canvas id="c5"></canvas></div></div>
+<div class="card"><h3>Subsidy mix by income level</h3><div class="ch"><canvas id="c6"></canvas></div></div></div>
+<div class="card"><h3>Prices by fuel type and income</h3><div class="ch"><canvas id="c7"></canvas></div>
+<div class="ins">High-income countries tax fuel the most (about 34.7%), while Low (22.9%) and Middle (21.1%) are close together. About 87.5% of High-income records sit in the Low subsidy level.</div></div>
+</section>
+
+<section class="panel" id="p4">
+<h2>Country Explorer</h2><p class="sub">Search any country. Click a column heading to sort. Prices are USD per litre and tax is the average percentage.</p>
+<div class="card"><div class="ctl"><input type="search" id="q" placeholder="Search country or region"></div><div class="scroll" style="max-height:440px"><table id="ct"></table></div></div>
+</section>
+<footer>Built by Suramya Shrivastava · IWT (CS3015) · Data: weekly fuel prices, Jan 2020 to Apr 2026. A country&rsquo;s subsidy level is its most frequent level.</footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+var LINKS={tab:"https://public.tableau.com/views/Book1_17933888433550/GlobalFuelDashboard?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link",vid:"https://drive.google.com/file/d/194S3xYnWQquZekCvWxNLfYnnoAOasUfH/view?usp=sharing",git:"https://github.com/Suramya05/Project-Global-Fuels"};
+try{["tab","vid","git"].forEach(function(k){document.getElementById("l-"+k).href=LINKS[k]})}catch(e){}
+var D={"countries":[["Algeria","Africa","Middle","Very High",15.176,0.141,0.118,0.106],["Angola","Africa","Low","High",15.054,0.522,0.473,0.391],["Argentina","South America","Middle","High",14.616,0.622,0.57,0.465],["Australia","Oceania","High","Low",38.101,3.433,3.278,2.574],["Austria","Europe","High","Low",37.498,3.811,3.656,2.856],["Bangladesh","Asia","Low","Medium",14.269,1.344,1.21,1.009],["Belgium","Europe","High","Low",37.92,4.321,4.21,3.24],["Botswana","Africa","Middle","Low",37.996,2.264,2.077,1.697],["Brazil","South America","Middle","Medium",15.044,2.059,1.841,1.544],["Cameroon","Africa","Low","Medium",14.683,1.345,1.235,1.008],["Canada","North America","High","Low",36.102,2.88,2.658,2.161],["Chile","South America","High","Low",36.515,3.325,2.991,2.495],["China","Asia","Middle","Medium",15.128,1.618,1.547,1.214],["Colombia","South America","Middle","Medium",15.343,1.617,1.474,1.212],["Czech Republic","Europe","High","Low",38.614,3.435,3.212,2.575],["Denmark","Europe","High","Low",38.865,4.543,4.321,3.406],["Ecuador","South America","Middle","High",14.887,0.572,0.519,0.429],["Egypt","Africa","Low","Very High",15.388,0.172,0.163,0.129],["Ethiopia","Africa","Low","Medium",14.926,1.413,1.277,1.061],["Finland","Europe","High","Low",36.643,4.255,4.165,3.192],["France","Europe","High","Low",36.931,4.166,4.099,3.124],["Germany","Europe","High","Low",39.213,4.208,3.989,3.156],["Ghana","Africa","Low","Low",36.552,2.067,1.897,1.551],["Greece","Europe","High","Low",35.949,4.1,3.767,3.075],["Hong Kong","Asia","High","Low",37.005,5.541,5.097,4.155],["Hungary","Europe","Middle","Medium",14.859,2.132,1.987,1.599],["India","Asia","Middle","Medium",14.891,1.62,1.473,1.214],["Indonesia","Asia","Middle","High",16.015,0.882,0.83,0.661],["Iran","Middle East","Middle","Very High",13.9,0.04,0.033,0.031],["Iraq","Middle East","Middle","Very High",15.097,0.164,0.142,0.122],["Ireland","Europe","High","Low",38.715,4.654,4.545,3.49],["Israel","Middle East","High","Low",37.242,4.211,3.945,3.158],["Italy","Europe","High","Low",36.802,4.1,4.033,3.077],["Ivory Coast","Africa","Low","Medium",14.59,1.409,1.278,1.056],["Japan","Asia","High","Low",36.887,3.435,3.214,2.576],["Jordan","Middle East","Middle","Medium",14.679,1.914,1.766,1.434],["Kenya","Africa","Low","Low",37.792,2.24,2.067,1.679],["Kuwait","Middle East","High","Very High",15.323,0.194,0.177,0.145],["Lebanon","Middle East","Middle","Low",35.756,3.114,2.924,2.338],["Libya","Africa","Low","Very High",15.284,0.056,0.049,0.042],["Malaysia","Asia","Middle","High",15.012,0.57,0.518,0.426],["Mexico","North America","Middle","High",14.653,0.986,0.913,0.739],["Morocco","Africa","Middle","Medium",13.906,1.693,1.548,1.272],["Mozambique","Africa","Low","Low",38.273,2.413,2.241,1.809],["Myanmar","Asia","Low","High",15.183,0.757,0.682,0.568],["Namibia","Africa","Middle","Low",37.884,2.359,2.171,1.768],["Nepal","Asia","Low","Medium",15.052,1.612,1.478,1.208],["Netherlands","Europe","High","Low",37.795,4.655,4.323,3.49],["New Zealand","Oceania","High","Low",39.273,3.878,3.656,2.91],["Nigeria","Africa","Low","Very High",14.303,0.213,0.193,0.161],["Norway","Europe","High","Low",36.241,4.764,4.431,3.573],["Pakistan","Asia","Low","High",15.261,0.713,0.646,0.536],["Peru","South America","Middle","Medium",15.968,1.767,1.619,1.324],["Philippines","Asia","Middle","Low",38.187,2.36,2.171,1.771],["Poland","Europe","Middle","Low",36.4,2.831,2.643,2.122],["Portugal","Europe","High","Low",36.66,3.989,3.81,2.992],["Qatar","Middle East","High","Very High",13.938,0.233,0.21,0.175],["Romania","Europe","Middle","Low",36.287,2.643,2.455,1.982],["Russia","Europe","Middle","High",15.163,0.725,0.675,0.543],["Rwanda","Africa","Low","Low",39.564,2.499,2.329,1.874],["Saudi Arabia","Middle East","High","Very High",15.363,0.25,0.221,0.187],["Senegal","Africa","Low","Medium",14.612,1.478,1.345,1.108],["Singapore","Asia","High","Low",38.18,4.543,4.211,3.407],["South Africa","Africa","Middle","Low",37.14,2.547,2.359,1.911],["South Korea","Asia","High","Low",37.126,3.656,3.435,2.743],["Spain","Europe","High","Low",38.088,3.878,3.768,2.91],["Sri Lanka","Asia","Low","Medium",14.703,1.546,1.41,1.159],["Sudan","Africa","Low","High",15.142,0.568,0.521,0.426],["Sweden","Europe","High","Low",36.999,4.431,4.1,3.324],["Switzerland","Europe","High","Low",37.934,4.387,4.166,3.291],["Taiwan","Asia","High","Low",38.332,2.88,2.659,2.16],["Tanzania","Africa","Low","Low",37.164,2.154,1.981,1.615],["Thailand","Asia","Middle","Medium",15.218,1.768,1.621,1.326],["Tunisia","Africa","Middle","High",14.723,0.677,0.603,0.508],["Turkey","Europe","Middle","Low",38.991,3.021,2.83,2.266],["UAE","Middle East","High","High",15.093,0.914,0.855,0.685],["Uganda","Africa","Low","Low",37.544,2.328,2.152,1.746],["Ukraine","Europe","Middle","Medium",14.607,1.988,1.842,1.492],["United Kingdom","Europe","High","Low",38.781,4.099,3.879,3.076],["United States","North America","High","Low",36.869,2.327,2.106,1.745],["Venezuela","South America","Low","Very High",15.038,0.016,0.017,0.016],["Vietnam","Asia","Middle","Medium",14.788,1.545,1.398,1.16],["Zambia","Africa","Low","Low",38.242,2.498,2.326,1.873],["Zimbabwe","Africa","Low","Low",37.118,2.584,2.412,1.938]],"regions":["Africa","Asia","Europe","Middle East","North America","Oceania","South America"],"q":["2020-Q1","2020-Q2","2020-Q3","2020-Q4","2021-Q1","2021-Q2","2021-Q3","2021-Q4","2022-Q1","2022-Q2","2022-Q3","2022-Q4","2023-Q1","2023-Q2","2023-Q3","2023-Q4","2024-Q1","2024-Q2","2024-Q3","2024-Q4","2025-Q1","2025-Q2","2025-Q3","2025-Q4","2026-Q1","2026-Q2"],"qd":{"Africa":[0.885,0.718,0.933,1.183,1.341,1.381,1.468,1.506,1.607,1.728,1.57,1.362,1.286,1.384,1.44,1.478,1.52,1.613,1.637,1.59,1.612,1.592,1.561,1.584,1.648,1.739],"Asia":[1.224,0.996,1.29,1.637,1.857,1.916,2.038,2.086,2.223,2.394,2.179,1.884,1.779,1.916,1.998,2.05,2.104,2.233,2.27,2.208,2.229,2.207,2.164,2.194,2.283,2.407],"Europe":[2.182,1.766,2.297,2.914,3.305,3.411,3.623,3.716,3.954,4.263,3.875,3.354,3.165,3.409,3.554,3.647,3.747,3.975,4.038,3.925,3.972,3.925,3.853,3.906,4.063,4.286],"Middle East":[0.708,0.574,0.746,0.944,1.075,1.106,1.176,1.207,1.279,1.381,1.26,1.086,1.028,1.107,1.153,1.183,1.214,1.291,1.312,1.273,1.289,1.275,1.252,1.265,1.32,1.394],"North America":[1.174,0.952,1.237,1.564,1.773,1.835,1.949,2.001,2.121,2.294,2.086,1.803,1.704,1.832,1.913,1.964,2.021,2.138,2.177,2.108,2.132,2.117,2.076,2.107,2.181,2.299],"Oceania":[2.145,1.733,2.264,2.868,3.255,3.361,3.574,3.661,3.902,4.196,3.821,3.307,3.118,3.36,3.5,3.6,3.69,3.92,3.977,3.865,3.925,3.864,3.796,3.857,4.007,4.222],"South America":[0.802,0.652,0.843,1.066,1.212,1.251,1.327,1.364,1.45,1.562,1.422,1.231,1.164,1.248,1.3,1.338,1.378,1.457,1.481,1.437,1.462,1.439,1.412,1.431,1.489,1.59]},"years":[2020,2021,2022,2023,2024,2025,2026],"vol":{"Africa":[0.623,0.584,0.591,0.585,0.583,0.582,0.583],"Asia":[0.688,0.65,0.657,0.651,0.649,0.649,0.651],"Europe":[0.341,0.281,0.293,0.283,0.279,0.277,0.28],"Middle East":[1.22,1.184,1.194,1.188,1.185,1.183,1.186],"North America":[0.438,0.391,0.399,0.389,0.386,0.388,0.393],"Oceania":[0.203,0.074,0.107,0.08,0.065,0.057,0.069],"South America":[0.759,0.725,0.732,0.727,0.725,0.724,0.728]},"rtax":{"Africa":[25.824,25.763,26.162,25.441,26.044,25.397,26.059],"Asia":[22.838,22.68,23.363,22.43,23.487,23.285,22.989],"Europe":[34.959,34.451,34.798,34.111,34.963,34.075,35.64],"Middle East":[19.463,19.489,20.378,19.283,19.238,19.868,19.162],"North America":[30.237,28.815,27.512,28.378,30.409,30.061,28.514],"Oceania":[36.614,38.432,40.482,40.1,37.46,38.996,38.914],"South America":[18.756,18.15,18.062,17.9,18.379,18.082,17.75]},"sub":{"Low":3.094,"Medium":1.474,"High":0.63,"Very High":0.131},"subtax":{"Low":37.549,"Medium":14.848,"High":15.067,"Very High":14.881},"inc":{"Low":{"tax":22.858,"pet":1.389,"die":1.277,"lpg":1.042,"sd":[34.8,30.4,17.4,17.4]},"Middle":{"tax":21.114,"pet":1.594,"die":1.471,"lpg":1.196,"sd":[27.6,37.9,24.1,10.3]},"High":{"tax":34.719,"pet":3.547,"die":3.35,"lpg":2.66,"sd":[87.5,0.0,3.1,9.4]}}};
+var $=function(i){return document.getElementById(i)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+var PAL=["#4e79a7","#f28e2b","#e15759","#76b7b2","#59a14f","#edc948","#b07aa1"],rc={},CH={};
+D.regions.forEach(function(r,i){rc[r]=PAL[i%7]});
+function mk(id,cfg){if(CH[id])CH[id].destroy();Chart.defaults.color=css("--muted");Chart.defaults.borderColor=css("--line");
+cfg.options=Object.assign({responsive:true,maintainAspectRatio:false},cfg.options||{});CH[id]=new Chart($(id),cfg)}
+var SUB=["Low","Medium","High","Very High"],INC=["Low","Middle","High"];
+/* Scenario 1 */
+$("s1r").innerHTML='<option>All regions</option>'+D.regions.map(function(r){return"<option>"+r+"</option>"}).join("");
+function c1(){var r=$("s1r").value,n=+$("s1n").value;$("s1v").textContent=n;
+var a=D.countries.filter(function(c){return r=="All regions"||c[1]==r}).sort(function(x,y){return y[4]-x[4]}).slice(0,n);
+mk("c1",{type:"bar",data:{labels:a.map(function(c){return c[0]}),datasets:[{label:"Avg tax %",data:a.map(function(c){return c[4]}),backgroundColor:a.map(function(c){return rc[c[1]]})}]},options:{indexAxis:"y",plugins:{legend:{display:false}}}})}
+var m1="price";
+function c2(){var p=m1=="price";mk("c2",{type:"bar",data:{labels:SUB,datasets:[{label:p?"Avg fuel price (USD/L)":"Avg tax (%)",data:SUB.map(function(s){return p?D.sub[s]:D.subtax[s]}),backgroundColor:["#4e79a7","#f28e2b","#e15759","#76b7b2"]}]},options:{plugins:{legend:{display:false}}}})}
+$("s1r").onchange=c1;$("s1n").oninput=c1;
+document.querySelectorAll(".seg [data-m]").forEach(function(b){b.onclick=function(){m1=b.dataset.m;document.querySelectorAll(".seg [data-m]").forEach(function(x){x.classList.toggle("on",x==b)});c2()}});
+/* Scenario 2 */
+var on={};D.regions.forEach(function(r){on[r]=true});
+$("chips").innerHTML=D.regions.map(function(r){return'<button class="chip on" data-r="'+r+'" style="border-color:'+rc[r]+'">'+r+"</button>"}).join("");
+document.querySelectorAll(".chip").forEach(function(b){b.onclick=function(){on[b.dataset.r]=!on[b.dataset.r];b.classList.toggle("on",on[b.dataset.r]);c3()}});
+function c3(){mk("c3",{type:"line",data:{labels:D.q,datasets:D.regions.filter(function(r){return on[r]}).map(function(r){return{label:r,data:D.qd[r],borderColor:rc[r],backgroundColor:rc[r],pointRadius:0,borderWidth:2,tension:.3}})},options:{interaction:{mode:"index",intersect:false},plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:7}}}}})}
+var dm="top";
+function c4(){var a=D.countries.slice().sort(function(x,y){return dm=="top"?y[6]-x[6]:x[6]-y[6]}).slice(0,10);
+mk("c4",{type:"bar",data:{labels:a.map(function(c){return c[0]}),datasets:[{label:"Avg diesel USD/L",data:a.map(function(c){return c[6]}),backgroundColor:a.map(function(c){return rc[c[1]]})}]},options:{indexAxis:"y",plugins:{legend:{display:false}}}})}
+document.querySelectorAll("#tb button").forEach(function(b){b.onclick=function(){dm=b.dataset.d;document.querySelectorAll("#tb button").forEach(function(x){x.classList.toggle("on",x==b)});c4()}});
+function vol(){var mx=0;D.regions.forEach(function(r){D.vol[r].forEach(function(v){if(v>mx)mx=v})});
+var h="<tr><th>Region</th>"+D.years.map(function(y){return"<th>"+y+"</th>"}).join("")+"</tr>";
+D.regions.forEach(function(r){h+="<tr><td>"+r+"</td>"+D.vol[r].map(function(v,i){return'<td class="h" title="'+r+" "+D.years[i]+'" style="background:rgba(242,142,43,'+(.12+.88*v/mx).toFixed(2)+')">'+(v*100).toFixed(1)+"%</td>"}).join("")+"</tr>"});$("vol").innerHTML=h}
+/* Scenario 3 */
+function c567(){mk("c5",{type:"bar",data:{labels:INC,datasets:[{label:"Avg tax %",data:INC.map(function(i){return D.inc[i].tax}),backgroundColor:["#4e79a7","#f28e2b","#e15759"]}]},options:{plugins:{legend:{display:false}}}});
+mk("c6",{type:"bar",data:{labels:INC,datasets:SUB.map(function(s,k){return{label:s,data:INC.map(function(i){return D.inc[i].sd[k]}),backgroundColor:["#4e79a7","#f28e2b","#e15759","#76b7b2"][k]}})},options:{scales:{x:{stacked:true},y:{stacked:true,max:100,title:{display:true,text:"% of records"}}}}});
+mk("c7",{type:"bar",data:{labels:INC,datasets:[["pet","Petrol","#f28e2b"],["die","Diesel","#4e79a7"],["lpg","LPG","#59a14f"]].map(function(f){return{label:f[1],data:INC.map(function(i){return D.inc[i][f[0]]}),backgroundColor:f[2]}})},options:{scales:{y:{title:{display:true,text:"USD per litre"}}}}})}
+/* Explorer */
+var sk=4,sd=-1,H=["Country","Region","Income","Subsidy","Tax %","Petrol","Diesel","LPG"];
+function ct(){var q=$("q").value.toLowerCase();var a=D.countries.filter(function(c){return(c[0]+c[1]).toLowerCase().indexOf(q)>-1}).sort(function(x,y){return(x[sk]>y[sk]?1:-1)*sd});
+$("ct").innerHTML="<tr>"+H.map(function(h,i){return'<th data-k="'+i+'">'+h+(i==sk?(sd>0?" ▲":" ▼"):"")+"</th>"}).join("")+"</tr>"+a.map(function(c){return"<tr>"+c.map(function(v){return"<td>"+v+"</td>"}).join("")+"</tr>"}).join("");
+document.querySelectorAll("#ct th").forEach(function(t){t.onclick=function(){var k=+t.dataset.k;sd=(k==sk)?-sd:-1;sk=k;ct()}})}
+$("q").oninput=ct;
+var R={p1:function(){c1();c2()},p2:function(){c3();c4();vol()},p3:c567,p4:ct};
+function show(id){document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("on",p.id==id)});document.querySelectorAll("#tabs button").forEach(function(b){b.classList.toggle("on",b.dataset.t==id)});R[id]()}
+document.querySelectorAll("#tabs button").forEach(function(b){b.onclick=function(){show(b.dataset.t)}});
+show("p1");
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){var a=document.querySelector(".panel.on").id;show(a)})}catch(e){}
+</script>
+</body>
+</html>
