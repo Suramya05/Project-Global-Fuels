@@ -9,6 +9,7 @@ A Tableau dashboard with 9 visualisations analysing fuel prices, taxation and su
 
 - **Tableau Public dashboard:** https://public.tableau.com/views/Book1_17933888433550/GlobalFuelDashboard?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
 - **Demo video (Google Drive):** https://drive.google.com/file/d/194S3xYnWQquZekCvWxNLfYnnoAOasUfH/view?usp=sharing
+- **Project website:** https://suramya05.github.io/Project-Global-Fuels/
 
 ## Problem Statement
 
